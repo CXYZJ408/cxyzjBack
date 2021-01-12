@@ -1,0 +1,80 @@
+package com.cxyzj.cxyzjback.Repository.Comment;
+
+import com.cxyzj.cxyzjback.Bean.Article.Comment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+
+import javax.transaction.Transactional;
+import java.util.List;
+
+/**
+ * @Auther: 夏
+ * @DATE: 2018/9/6 15:10
+ * @Description:
+ */
+public interface CommentJpaRepository extends JpaRepository<Comment, String> {
+
+    Comment findByCommentId(String commentId);
+
+    int findCommentsByCommentId(String commentId);
+
+    boolean existsByCommentId(String commentId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from comment where comment_id=?1", nativeQuery = true)
+    void deleteByCommentId(String commentId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from comment where target_id=?1", nativeQuery = true)
+    void deleteByTargetId(String targetId);
+
+    @Transactional
+    @Query(value = "select level from comment where target_id=?1", nativeQuery = true)
+    List getLevel(String targetId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update comment set children=?1 where comment_id=?2", nativeQuery = true)
+    void updateChildrenByCommentId(int children, String commentId);
+
+    @Transactional
+    @Query(value = "select children from comment where comment_id=?1", nativeQuery = true)
+    int findChildrenByCommentId(String commentId);
+
+
+    List<Comment> findByTargetId(String articleId);
+
+    @Transactional
+    @Query(value = "select * from comment LIMIT ?1,?2", nativeQuery = true)
+    List findAll(int startIndex, int i);
+
+    @Transactional
+    @Query(value = "select support from comment where comment_id=?1", nativeQuery = true)
+    int findSupportByCommentId(String commentId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update comment set support=?1 where comment_id=?2", nativeQuery = true)
+    void updateCommentSupport(int support, String commentId);
+
+    @Transactional
+    @Query(value = "select object from comment where comment_id=?1", nativeQuery = true)
+    int findObjectByCommentId(String commentId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update comment set object=?1 where comment_id=?2", nativeQuery = true)
+    void updateCommentObject(int object, String commentId);
+
+    List<Comment> findAllBySupportIsGreaterThan(int support);
+
+    Page<Comment> findAllByTargetId(Pageable pageable, String articleId);
+
+    Page<Comment> findAllByDiscusser(Pageable pageable, String discusser);
+
+}
